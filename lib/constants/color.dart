@@ -1,0 +1,27 @@
+import 'package:flutter/material.dart';
+
+const backgroundColor = Color(0xFFfdfaf5);
+const backgroundColorWhite = Colors.white;
+const textColor = Color(0xFF6A6A6A);
+const placeholderColor = Color.fromARGB(255, 198, 198, 198);
+const appBarBackground = Color(0xFFE04F67);
+const successColor = Color(0xFF338A26);
+const successColorInfo = Color.fromARGB(255, 71, 168, 56);
+const textRed = Color(0xFFE04F67);
+const textWhite = Colors.white;
+const titleColor = Colors.black;
+const buttonDefaultColor = Color(0xFFE04F67);
+const buttonColor = Color(0xFFFAFAFA);
+const drawerButton = Color(0xFFFAFAFA);
+const drawerBackground = Color(0xFFFDFDFD);
+const facebookColor = Color(0xFF3B5998);
+const iconColor = Color(0xFF6A6A6A);
+const border = Color(0xFFC4C4C4);
+const borderActive = Color.fromARGB(255, 163, 163, 163);
+const profilBorder = Color(0xFFDDDDDD);
+const borderImage = Color.fromARGB(255, 222, 222, 222);
+const navigationBarColor = Colors.white;
+const activeNavigationBarItem = Color.fromARGB(25, 224, 79, 103);
+const favorisBackground = Color.fromARGB(89, 224, 79, 103);
+const favorisBackgroundBlack = Color.fromARGB(255, 43, 43, 43);
+const galeryIndicator = Color.fromARGB(48, 224, 79, 103);
