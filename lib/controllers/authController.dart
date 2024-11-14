@@ -45,9 +45,11 @@ class AuthController extends GetxController {
 
         //Sauvegarde des infos dans le storage local
         await _storage.write(_tokenKey, data['access_token']);
-        await _storage.write(_userKey, data['user']);
+        await _storage.write(_userKey, jsonEncode(data['user']));
 
         user.value = User.fromJson(data['user']);
+
+        printStorageContent();
 
         //Redirection vers la page home
         Get.offAllNamed('/navigation');
@@ -123,11 +125,13 @@ class AuthController extends GetxController {
   Future<void> restoreSession() async {
     try {
       final token = getToken();
-      final userData = await _storage.read(_userKey);
+      final userData = _storage.read(_userKey);
+
+      printStorageContent();
 
       if (token != null && userData != null) {
         user.value = User.fromJson(jsonDecode(userData));
-        Get.toNamed('/navigation');
+        Get.offAllNamed('/navigation');
       } else {
         throw Exception('Session expiré');
       }
@@ -168,5 +172,12 @@ class AuthController extends GetxController {
       print('Erreur lors de la restauration de la session: $e');
       return false;
     }
+  }
+
+  void printStorageContent() {
+    print('################# Contenu du storage: ##################');
+    print('Token: ${_storage.read(_tokenKey)}');
+    print('User: ${_storage.read(_userKey)}');
+    print('################# Fin ##################');
   }
 }

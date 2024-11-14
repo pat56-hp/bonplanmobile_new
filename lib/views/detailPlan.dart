@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
 import 'package:mobile/models/etablissement.dart';
-import 'package:mobile/models/gallery.dart';
 import 'package:mobile/utils/apiEndPoint.dart';
 import 'package:mobile/views/widgets/ButtonWidget.dart';
 import 'package:mobile/views/widgets/IconButtonWidget.dart';

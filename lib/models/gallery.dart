@@ -7,14 +7,14 @@ String galleryToJson(Gallery data) => json.encode(data.toJson());
 class Gallery {
   int? id;
   int? etablissementId;
-  dynamic? eventId;
+  dynamic eventId;
   String? image;
 
   Gallery({
-     this.id,
-     this.etablissementId,
-     this.eventId,
-     this.image,
+    this.id,
+    this.etablissementId,
+    this.eventId,
+    this.image,
   });
 
   factory Gallery.fromJson(Map<String, dynamic> json) => Gallery(

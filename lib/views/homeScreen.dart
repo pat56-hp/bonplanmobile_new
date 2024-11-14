@@ -5,7 +5,6 @@ import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
 import 'package:mobile/controllers/authController.dart';
 import 'package:mobile/controllers/homeController.dart';
-import 'package:mobile/models/etablissement.dart';
 import 'package:mobile/views/drawerWidget.dart';
 import 'package:mobile/views/widgets/emptyData.dart';
 import 'package:mobile/views/widgets/iconButtonWidget.dart';
@@ -122,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       /** Input de recherche **/
                       InputWidget(
                         readOnly: true,
+                        clickFunction: () => Get.toNamed('/search'),
                         hintText: 'Retrouver un établissement',
                         prefixIcon: 'assets/icons/search.svg',
                         hintTextColor: placeholderColor,

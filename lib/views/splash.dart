@@ -19,8 +19,8 @@ class _SplashSreenState extends State<SplashSreen> {
   void initState() {
     super.initState();
     // Déclenche le démarrage de l'écran principal après 2 secondes
-    Timer(Duration(seconds: 6), () {
-      _authController.restoreSession();
+    Timer(Duration(seconds: 6), () async {
+      await _authController.restoreSession();
     });
   }
 

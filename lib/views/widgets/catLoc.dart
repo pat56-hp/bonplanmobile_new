@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
 import 'package:mobile/views/widgets/TextWidget.dart';
-import 'package:mobile/views/widgets/textWidgetTroncate.dart';
 
 class CatLoc extends StatelessWidget {
   const CatLoc(

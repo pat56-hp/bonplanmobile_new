@@ -15,18 +15,17 @@ class WeekPlan extends StatelessWidget {
       height: 300,
       child: ListView.builder(
           shrinkWrap: true,
-          itemCount: homeController.plansOfWeek.value.length,
+          itemCount: homeController.plansOfWeek.length,
           scrollDirection: Axis.horizontal,
           padding:
               const EdgeInsets.symmetric(horizontal: padding, vertical: 10),
           itemBuilder: (context, index) {
             return Padding(
               padding: EdgeInsets.only(
-                  right: index < homeController.plansOfWeek.value.length
-                      ? 20.0
-                      : 0.0),
-              child: LargePlan(
-                  etablissement: homeController.plansOfWeek.value[index]),
+                  right:
+                      index < homeController.plansOfWeek.length ? 20.0 : 0.0),
+              child:
+                  LargePlan(etablissement: homeController.plansOfWeek[index]),
             );
           }),
     );

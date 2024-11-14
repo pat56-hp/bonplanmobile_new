@@ -13,15 +13,16 @@ class ExploreController extends GetxController {
 
   @override
   void dispose() {
+    super.dispose();
     _timer?.cancel();
   }
 
-  Future getEtablissement(
+  Future getEtablissement({
     String? adresse,
     String? libelle,
-    int? category,
-    int? commodite,
-  ) async {
+    String? category,
+    String? commodite,
+  }) async {
     try {
       loading.value = true;
 
@@ -43,11 +44,11 @@ class ExploreController extends GetxController {
         }
 
         if (category != null) {
-          queryParams['category'] = category.toString();
+          queryParams['category'] = category;
         }
 
         if (commodite != null) {
-          queryParams['commodite'] = commodite.toString();
+          queryParams['commodite'] = commodite;
         }
 
         // Créer l'URL avec les paramètres dynamiques
@@ -70,6 +71,7 @@ class ExploreController extends GetxController {
       });
     } catch (e) {
       print('Erreur serveur : ${e.toString()}');
+      loading.value = false;
     }
   }
 

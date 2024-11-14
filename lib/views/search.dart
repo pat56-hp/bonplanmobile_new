@@ -4,12 +4,11 @@ import 'package:get/get.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
 import 'package:mobile/controllers/categoryController.dart';
-import 'package:mobile/models/category.dart';
-import 'package:mobile/models/commodite.dart';
+import 'package:mobile/views/exploreScreen.dart';
 import 'package:mobile/views/widgets/buttonWidget.dart';
 import 'package:mobile/views/widgets/inputWidget.dart';
+import 'package:mobile/views/widgets/loadingCircularProgress.dart';
 import 'package:mobile/views/widgets/textWidget.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -18,12 +17,24 @@ class Search extends StatefulWidget {
   State<Search> createState() => _SearchState();
 }
 
+class CategorySelected {
+  int? id;
+
+  CategorySelected({this.id});
+}
+
+class CommoditeSelected {
+  int? id;
+
+  CommoditeSelected({this.id});
+}
+
 class _SearchState extends State<Search> {
   final CategoryController _categoryController = Get.find<CategoryController>();
-  List<Category?> _selectedCategories = [];
-  List<Commodite?> _selectedCommodites = [];
-  int _selectedCategoriesLenght = 0;
-  int _selectedCommoditesLenght = 0;
+  final _nameController = TextEditingController();
+  final _adresseController = TextEditingController();
+  List<CategorySelected> _selectedCategory = [];
+  List<CommoditeSelected> _selectedCommodite = [];
 
   @override
   void initState() {
@@ -32,17 +43,220 @@ class _SearchState extends State<Search> {
     super.initState();
   }
 
+  bool _verifiyCategorySelected(int categoryId) {
+    return _selectedCategory.any((category) => category.id == categoryId);
+  }
+
+  void _addSelectedCategory(int categoryId) {
+    setState(() {
+      if (!_verifiyCategorySelected(categoryId)) {
+        _selectedCategory.add(CategorySelected(id: categoryId));
+      } else {
+        _selectedCategory.removeWhere((category) => category.id == categoryId);
+      }
+    });
+  }
+
+  bool _verifiyCommoditeSelected(int commoditeId) {
+    return _selectedCommodite.any((commodite) => commodite.id == commoditeId);
+  }
+
+  void _addSelectedCommodite(int commoditeId) {
+    setState(() {
+      if (!_verifiyCommoditeSelected(commoditeId)) {
+        _selectedCommodite.add(CommoditeSelected(id: commoditeId));
+      } else {
+        _selectedCommodite
+            .removeWhere((commodite) => commodite.id == commoditeId);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final categoriesItems = _categoryController.categories
-        .map((category) =>
-            MultiSelectItem<Category>(category, category.libelle!))
-        .toList();
+    void _filterSendData() {
+      List categoryIds =
+          _selectedCategory.map((category) => category.id).toList();
+      List commoditeIds =
+          _selectedCommodite.map((commodite) => commodite.id).toList();
 
-    final commoditesItems = _categoryController.commodites
-        .map((commodite) =>
-            MultiSelectItem<Commodite>(commodite, commodite.libelle!))
-        .toList();
+      Map data = {
+        'adresse': _adresseController.text,
+        'libelle': _nameController.text,
+        'category': categoryIds.join(','),
+        'commodite': commoditeIds.join(','),
+      };
+
+      Get.off(() => ExploreScreen(searchData: data));
+    }
+
+    void showBottomSheetbarCategory() {
+      Get.bottomSheet(
+        StatefulBuilder(// Ajout du StatefulBuilder
+            builder: (BuildContext context, StateSetter setModalState) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+                horizontal: padding, vertical: padding),
+            child: Column(
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      height: 4,
+                      width: 70,
+                      color: profilBorder,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    InputWidget(
+                      hintText: 'Retrouver une catégorie',
+                      prefixIcon: 'assets/icons/search.svg',
+                      hintTextColor: placeholderColor,
+                      background: backgroundColorWhite,
+                      sizeIcon: 18.0,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.31,
+                      child: ListView.builder(
+                          itemCount: _categoryController.categories.length,
+                          itemBuilder: (context, index) {
+                            return CheckboxListTile(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 0),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: appBarBackground,
+                              checkColor: backgroundColorWhite,
+                              title: TextWidget(
+                                label: _categoryController
+                                    .categories[index].libelle!,
+                                extra: const {'textAlign': TextAlign.start},
+                              ),
+                              value: _verifiyCategorySelected(
+                                  _categoryController.categories[index].id!),
+                              onChanged: (bool? value) {
+                                setModalState(() {
+                                  // Utilisation de setModalState
+                                  _addSelectedCategory(_categoryController
+                                      .categories[index].id!);
+                                });
+                              },
+                            );
+                          }),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.only(top: 15),
+                  margin: const EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: border))),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ButtonWidget(
+                      label: 'Fermer',
+                      backgroundColor: borderActive,
+                      onPress: Get.back,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
+        }),
+        backgroundColor: backgroundColorWhite,
+        isDismissible: true,
+      );
+    }
+
+    void showBottomSheetbarCommodite() {
+      Get.bottomSheet(
+        StatefulBuilder(// Ajout du StatefulBuilder
+            builder: (BuildContext context, StateSetter setModalState) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+                horizontal: padding, vertical: padding),
+            child: Column(
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      height: 4,
+                      width: 70,
+                      color: profilBorder,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    InputWidget(
+                      hintText: 'Retrouver une commodité',
+                      prefixIcon: 'assets/icons/search.svg',
+                      hintTextColor: placeholderColor,
+                      background: backgroundColorWhite,
+                      sizeIcon: 18.0,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.31,
+                      child: ListView.builder(
+                          itemCount: _categoryController.commodites.length,
+                          itemBuilder: (context, index) {
+                            return CheckboxListTile(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 0),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              activeColor: appBarBackground,
+                              checkColor: backgroundColorWhite,
+                              title: TextWidget(
+                                label: _categoryController
+                                    .commodites[index].libelle!,
+                                extra: const {'textAlign': TextAlign.start},
+                              ),
+                              value: _verifiyCommoditeSelected(
+                                  _categoryController.commodites[index].id!),
+                              onChanged: (bool? value) {
+                                setModalState(() {
+                                  // Utilisation de setModalState
+                                  _addSelectedCommodite(_categoryController
+                                      .commodites[index].id!);
+                                });
+                              },
+                            );
+                          }),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.only(top: 15),
+                  margin: const EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: border))),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ButtonWidget(
+                      label: 'Fermer',
+                      backgroundColor: borderActive,
+                      onPress: Get.back,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
+        }),
+        backgroundColor: backgroundColorWhite,
+        isDismissible: true,
+      );
+    }
 
     return GestureDetector(
       onTap: () {},
@@ -77,154 +291,167 @@ class _SearchState extends State<Search> {
               },
             ),
           ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 25, horizontal: padding),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InputWidget(
-                    hintText: 'Nom de l\'établissement',
-                    prefixIcon: 'assets/icons/search.svg',
-                    hintTextColor: placeholderColor,
-                    background: backgroundColorWhite,
-                  ),
-                  SizedBox(
-                    height: padding,
-                  ),
-                  InputWidget(
-                    hintText: 'Adresse de l\'établissement',
-                    prefixIcon: 'assets/icons/search.svg',
-                    hintTextColor: placeholderColor,
-                    background: backgroundColorWhite,
-                  ),
-                  SizedBox(
-                    height: padding,
-                  ),
-                  Column(
-                    children: <Widget>[
-                      MultiSelectBottomSheetField(
-                        backgroundColor: backgroundColorWhite,
-                        selectedColor: activeNavigationBarItem,
-                        initialChildSize: 0.4,
-                        searchable: true,
-                        isDismissible: false,
-                        listType: MultiSelectListType.LIST,
-                        title: TextWidget(
-                          label: 'Catégories',
-                          extra: const {'size': 15.0},
-                        ),
-                        searchHint: 'Rechercher une catégorie',
-                        buttonText: Text(
-                          "Sélectionnez des catégories",
-                          style: TextStyle(
-                              fontSize: 15.0, color: textColor, height: 2.2),
-                        ),
-                        checkColor: appBarBackground,
-                        items: categoriesItems,
-                        confirmText: Text('Valider'),
-                        cancelText: Text('Annuler'),
-                        separateSelectedItems: false,
-                        decoration: BoxDecoration(
-                            color: backgroundColorWhite,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: profilBorder)),
-                        onConfirm: (values) {
-                          _selectedCategories = values.cast<Category?>();
-                          setState(() {
-                            _selectedCategoriesLenght =
-                                _selectedCategories.length;
-                          });
-                        },
-                        chipDisplay: MultiSelectChipDisplay(
-                          onTap: (value) {
-                            setState(() {
-                              _selectedCategories.remove(value);
-                              _selectedCategoriesLenght =
-                                  _selectedCategories.length;
-                            });
-                          },
-                        ),
+          body: Obx(() {
+            return _categoryController.loading.value
+                ? LoadingCircularProgress(
+                    color: appBarBackground,
+                  )
+                : SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 25, horizontal: padding),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          InputWidget(
+                            controller: _nameController,
+                            hintText: 'Nom de l\'établissement',
+                            suffixIcon: 'assets/icons/tags.svg',
+                            hintTextColor: placeholderColor,
+                            background: backgroundColorWhite,
+                            sizeIcon: 20.0,
+                          ),
+                          SizedBox(
+                            height: padding,
+                          ),
+                          InputWidget(
+                            controller: _adresseController,
+                            hintText: 'Adresse de l\'établissement',
+                            suffixIcon: 'assets/icons/tags.svg',
+                            hintTextColor: placeholderColor,
+                            background: backgroundColorWhite,
+                            sizeIcon: 20.0,
+                          ),
+                          SizedBox(
+                            height: padding,
+                          ),
+                          InputWidget(
+                            hintText: 'Sélectionnez des catégories',
+                            hintTextColor: placeholderColor,
+                            background: backgroundColorWhite,
+                            suffixIcon: 'assets/icons/bookmark.svg',
+                            sizeIcon: 20.0,
+                            readOnly: true,
+                            clickFunction: () => showBottomSheetbarCategory(),
+                          ),
+                          if (_selectedCategory.isNotEmpty)
+                            Column(
+                              children: [
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Wrap(
+                                  spacing: 5,
+                                  runSpacing: 5,
+                                  children: [
+                                    ..._selectedCategory.map((category) =>
+                                        InkWell(
+                                          onTap: () => _addSelectedCategory(
+                                              category.id!),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                color: appBarBackground,
+                                                borderRadius:
+                                                    BorderRadiusDirectional
+                                                        .circular(10)),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextWidget(
+                                                  label: _categoryController
+                                                      .getCategoryLibelle(
+                                                          category.id!),
+                                                  extra: const {
+                                                    'color': textWhite
+                                                  },
+                                                ),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                SvgPicture.asset(
+                                                  'assets/icons/cross.svg',
+                                                  color: textWhite,
+                                                  width: 10,
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ))
+                                  ],
+                                )
+                              ],
+                            ),
+                          SizedBox(
+                            height: padding,
+                          ),
+                          InputWidget(
+                            hintText: 'Sélectionnez des commodités',
+                            hintTextColor: placeholderColor,
+                            background: backgroundColorWhite,
+                            suffixIcon: 'assets/icons/bookmark.svg',
+                            sizeIcon: 20.0,
+                            readOnly: true,
+                            clickFunction: () => showBottomSheetbarCommodite(),
+                          ),
+                          if (_selectedCommodite.isNotEmpty)
+                            Column(
+                              children: [
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Wrap(
+                                  spacing: 5,
+                                  runSpacing: 5,
+                                  children: [
+                                    ..._selectedCommodite.map((commodite) =>
+                                        InkWell(
+                                          onTap: () => _addSelectedCommodite(
+                                              commodite.id!),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                color: appBarBackground,
+                                                borderRadius:
+                                                    BorderRadiusDirectional
+                                                        .circular(10)),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextWidget(
+                                                  label: _categoryController
+                                                      .getCommoditeLibelle(
+                                                          commodite.id!),
+                                                  extra: const {
+                                                    'color': textWhite
+                                                  },
+                                                ),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                SvgPicture.asset(
+                                                  'assets/icons/cross.svg',
+                                                  color: textWhite,
+                                                  width: 10,
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ))
+                                  ],
+                                )
+                              ],
+                            ),
+                        ],
                       ),
-                      _selectedCategoriesLenght == 0
-                          ? Container(
-                              padding: EdgeInsets.only(top: 2, left: 10),
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Aucune catégorie sélectionnée",
-                                style: TextStyle(color: Colors.black54),
-                              ))
-                          : Container(),
-                    ],
-                  ),
-                  SizedBox(
-                    height: padding,
-                  ),
-                  Column(
-                    children: <Widget>[
-                      MultiSelectBottomSheetField(
-                        backgroundColor: backgroundColorWhite,
-                        selectedColor: activeNavigationBarItem,
-                        initialChildSize: 0.4,
-                        searchable: true,
-                        listType: MultiSelectListType.LIST,
-                        title: TextWidget(
-                          label: 'Commodités',
-                          extra: const {'size': 15.0},
-                        ),
-                        searchHint: 'Rechercher une commodité',
-                        buttonText: Text(
-                          "Sélectionnez des commodités",
-                          style: TextStyle(
-                              fontSize: 15.0, color: textColor, height: 2.2),
-                        ),
-                        isDismissible: false,
-                        checkColor: appBarBackground,
-                        items: commoditesItems,
-                        confirmText: Text('Valider'),
-                        cancelText: Text('Annuler'),
-                        separateSelectedItems: false,
-                        decoration: BoxDecoration(
-                            color: backgroundColorWhite,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: profilBorder)),
-                        onConfirm: (values) {
-                          _selectedCommodites = values.cast<Commodite?>();
-                          setState(() {
-                            _selectedCommoditesLenght =
-                                _selectedCommodites.length;
-                          });
-                        },
-                        chipDisplay: MultiSelectChipDisplay(
-                          onTap: (value) {
-                            setState(() {
-                              _selectedCommodites.remove(value);
-                              _selectedCommoditesLenght =
-                                  _selectedCommodites.length;
-                            });
-                          },
-                        ),
-                      ),
-                      _selectedCommoditesLenght == 0
-                          ? Container(
-                              padding: EdgeInsets.only(top: 2, left: 10),
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Aucune commodité sélectionnée",
-                                style: TextStyle(color: Colors.black54),
-                              ))
-                          : Container(),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
+                    ),
+                  );
+          }),
           persistentFooterButtons: [
             SizedBox(
               height: 50,
               child: ButtonWidget(
+                onPress: _filterSendData,
                 iconWidget: Row(
                   children: [
                     SvgPicture.asset(

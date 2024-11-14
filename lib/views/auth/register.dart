@@ -68,10 +68,9 @@ class _RegisterState extends State<Register> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _nameController.dispose();
     _lastnameController.dispose();
-    _phoneController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();

@@ -8,18 +8,24 @@ class InputWidget extends StatelessWidget {
   const InputWidget(
       {super.key,
       required this.hintText,
-      required this.prefixIcon,
+      this.prefixIcon,
+      this.suffixIcon,
+      this.sizeIcon,
       this.obscureText,
       this.hintTextColor,
       this.background,
       this.controller,
       this.errorText,
       this.value,
-      this.readOnly = false});
+      this.readOnly = false,
+      this.clickFunction});
 
   final bool? obscureText;
+  final Function? clickFunction;
   final String hintText;
-  final String prefixIcon;
+  final String? prefixIcon;
+  final String? suffixIcon;
+  final double? sizeIcon;
   final Color? background;
   final Color? hintTextColor;
   final String? errorText;
@@ -33,15 +39,15 @@ class InputWidget extends StatelessWidget {
       controller: controller,
       readOnly: readOnly,
       onTap: () {
-        if (readOnly) {
-          Get.toNamed('/search');
+        if (readOnly == true) {
+          clickFunction!();
         }
       },
       obscureText: obscureText ?? false,
       cursorColor: textColor,
       style: const TextStyle(color: textColor, fontSize: textSize),
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.all(5),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
         hintText: hintText,
         hintStyle: TextStyle(
           color: hintTextColor ?? placeholderColor,
@@ -74,13 +80,26 @@ class InputWidget extends StatelessWidget {
         ),
         fillColor: background ?? drawerButton,
         filled: true,
-        prefixIcon: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SvgPicture.asset(
-            prefixIcon,
-            color: iconColor,
-          ),
-        ),
+        prefixIcon: prefixIcon != null
+            ? Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SvgPicture.asset(
+                  prefixIcon!,
+                  color: iconColor,
+                ),
+              )
+            : null,
+        suffixIcon: suffixIcon != null
+            ? Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SvgPicture.asset(
+                  suffixIcon!,
+                  color: iconColor,
+                  width: sizeIcon ?? iconSize,
+                  height: sizeIcon ?? iconSize,
+                ),
+              )
+            : null,
       ),
     );
   }

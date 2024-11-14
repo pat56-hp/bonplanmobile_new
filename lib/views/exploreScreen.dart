@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -16,7 +14,9 @@ import 'package:mobile/views/widgets/textWidget.dart';
 import 'package:mobile/views/widgets/plans/smallPlan.dart';
 
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key});
+  const ExploreScreen({super.key, this.searchData});
+
+  final Map? searchData;
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
@@ -27,14 +27,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
   final HomeController _homeController = Get.find<HomeController>();
   final ExploreController _exploreController = Get.find<ExploreController>();
   final TextEditingController _controller = TextEditingController();
+  final arguments = Get.arguments;
   String _previousValue = '';
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
     //Renvoie les etablissements sans filtre
-    _exploreController.getEtablissement(null, null, null, null);
+    _fetchData();
 
     // Écoute les changements de texte pour la recherche
     _controller.addListener(() {
@@ -47,8 +49,37 @@ class _ExploreScreenState extends State<ExploreScreen> {
     });
   }
 
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    _exploreController
+        .getEtablissement(
+      libelle: widget.searchData?['libelle'],
+      adresse: widget.searchData?['adresse'],
+      category: widget.searchData?['category'],
+      commodite: widget.searchData?['commodite'],
+    )
+        .then((_) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
+  }
+
   void _fetchDataByTitle(String query) {
-    _exploreController.getEtablissement(null, query, null, null);
+    setState(() {
+      _isLoading = true;
+    });
+    _exploreController
+        .getEtablissement(
+      libelle: query,
+    )
+        .then((_) {
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   @override
@@ -57,16 +88,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.dispose();
   }
 
+  void selectedCategory(int categoryId) {
+    setState(() {
+      _selectedCategory = categoryId;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    void selectedCategory(int categoryId) {
-      setState(() {
-        _selectedCategory = categoryId;
-      });
-    }
-
-    void _pressedFilter() {}
-
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -138,7 +167,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   IconButtonWidget(
                       backgroundColor: backgroundColorWhite,
                       icon: 'assets/icons/filter.svg',
-                      pressFunction: () => print('pressed filter boutton')),
+                      pressFunction: () => Get.offNamed('/search')),
                 ],
               ),
             ),
@@ -171,35 +200,34 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             const SizedBox(height: padding),
             Expanded(
-              child: Obx(() {
-                return _exploreController.loading.value
+                child: _isLoading == true
                     ? const LoadingCircularProgress(
                         color: appBarBackground,
                       )
-                    : ListView(
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: padding),
-                            child: Column(
-                              children: _exploreController
-                                      .filterPlanByCategory(_selectedCategory)
-                                      .isNotEmpty
-                                  ? _exploreController
-                                      .filterPlanByCategory(_selectedCategory)
-                                      .map((plan) => SmallPlan(plan: plan))
-                                      .toList()
-                                  : [
-                                      const EmptyData(
-                                          label:
-                                              'Aucun établissement disponible')
-                                    ],
+                    : Obx(() {
+                        return ListView(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: padding),
+                              child: Column(
+                                children: _exploreController
+                                        .filterPlanByCategory(_selectedCategory)
+                                        .isNotEmpty
+                                    ? _exploreController
+                                        .filterPlanByCategory(_selectedCategory)
+                                        .map((plan) => SmallPlan(plan: plan))
+                                        .toList()
+                                    : [
+                                        const EmptyData(
+                                            label:
+                                                'Aucun établissement disponible')
+                                      ],
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-              }),
-            )
+                          ],
+                        );
+                      }))
           ],
         )),
       ),

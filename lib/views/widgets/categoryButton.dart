@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
-import 'package:mobile/models/category.dart';
 import 'package:mobile/views/widgets/TextWidget.dart';
 
 class CategoryButton extends StatelessWidget {

@@ -35,40 +35,47 @@ class _NavigationState extends State<Navigation> {
     return Scaffold(
       backgroundColor: backgroundColor,
       body: _widgetOption.elementAt(_selectedIndex),
-      bottomNavigationBar: NavigationBar(
-        surfaceTintColor: navigationBarColor,
-        onDestinationSelected: _onItemSelected,
-        indicatorColor: Colors.transparent,
-        selectedIndex: _selectedIndex,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-        shadowColor: activeNavigationBarItem,
-        elevation: 10,
-        destinations: [
-          navigationItem(
-              index: 0,
-              selectedIndex: _selectedIndex,
-              label: 'Accueil',
-              activeIcon: 'assets/icons/home-active.svg',
-              icon: 'assets/icons/home.svg'),
-          navigationItem(
-              index: 1,
-              selectedIndex: _selectedIndex,
-              label: 'Explorer',
-              activeIcon: 'assets/icons/search-active.svg',
-              icon: 'assets/icons/search.svg'),
-          navigationItem(
-              index: 2,
-              selectedIndex: _selectedIndex,
-              label: 'Favoris',
-              activeIcon: 'assets/icons/heart-active.svg',
-              icon: 'assets/icons/heart.svg'),
-          navigationItem(
-              index: 3,
-              selectedIndex: _selectedIndex,
-              label: 'Profil',
-              activeIcon: 'assets/icons/user-active.svg',
-              icon: 'assets/icons/user.svg'),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Color.fromARGB(63, 224, 79, 103), width: 1),
+          ),
+        ),
+        child: NavigationBar(
+          backgroundColor: backgroundColorWhite,
+          onDestinationSelected: _onItemSelected,
+          indicatorColor: Colors.transparent,
+          selectedIndex: _selectedIndex,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          shadowColor: activeNavigationBarItem,
+          elevation: 10,
+          destinations: [
+            navigationItem(
+                index: 0,
+                selectedIndex: _selectedIndex,
+                label: 'Accueil',
+                activeIcon: 'assets/icons/home-active.svg',
+                icon: 'assets/icons/home.svg'),
+            navigationItem(
+                index: 1,
+                selectedIndex: _selectedIndex,
+                label: 'Explorer',
+                activeIcon: 'assets/icons/search-active.svg',
+                icon: 'assets/icons/search.svg'),
+            navigationItem(
+                index: 2,
+                selectedIndex: _selectedIndex,
+                label: 'Favoris',
+                activeIcon: 'assets/icons/heart-active.svg',
+                icon: 'assets/icons/heart.svg'),
+            navigationItem(
+                index: 3,
+                selectedIndex: _selectedIndex,
+                label: 'Profil',
+                activeIcon: 'assets/icons/user-active.svg',
+                icon: 'assets/icons/user.svg'),
+          ],
+        ),
       ),
     );
   }
