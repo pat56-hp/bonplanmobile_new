@@ -56,7 +56,7 @@ class AvisCommentaire extends StatelessWidget {
                                 children: [
                                   TextWidget(
                                     label:
-                                        '${commentaire.client?.name.toString()} ${commentaire.client!.lastname.toString()}',
+                                        '${commentaire.client?.name.toString()} ${commentaire.client?.lastname.toString()}',
                                     extra: const {
                                       'fontWeight': FontWeight.w500,
                                     },
@@ -71,7 +71,7 @@ class AvisCommentaire extends StatelessWidget {
                               ),
                               Stars(
                                 size: 14,
-                                note: commentaire.note!.toDouble(),
+                                note: commentaire.note.toDouble(),
                               ),
                               const SizedBox(
                                 height: 8,

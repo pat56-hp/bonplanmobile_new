@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:mobile/models/etablissement.dart';
-import 'package:http/http.dart' as http;
+import 'package:mobile/services/apiService.dart';
 import 'package:mobile/utils/apiEndPoint.dart';
 
 class ExploreController extends GetxController {
@@ -51,15 +50,11 @@ class ExploreController extends GetxController {
           queryParams['commodite'] = commodite;
         }
 
-        // Créer l'URL avec les paramètres dynamiques
-        var uri = Uri.parse(url).replace(queryParameters: queryParams);
-
         // Faire la requête HTTP avec les paramètres valides seulement
-        var response =
-            await http.get(uri, headers: {'Content-Type': 'application/json'});
+        final response = await ApiService.get(url, query: queryParams);
 
         if (response.statusCode == 200) {
-          final jsonResponse = jsonDecode(response.body);
+          final jsonResponse = response.data;
           plans.assignAll((jsonResponse['data'] as List)
               .map((data) => Etablissement.fromJson(data))
               .toList());
@@ -88,5 +83,14 @@ class ExploreController extends GetxController {
             plan.id != etablissement.id)
         .take(4)
         .toList();
+  }
+
+  void updateEtablissement(Etablissement etablissement) {
+    final index = plans.indexWhere((e) => e.id == etablissement.id);
+
+    if (index != -1) {
+      plans[index] = etablissement;
+      plans.refresh();
+    }
   }
 }

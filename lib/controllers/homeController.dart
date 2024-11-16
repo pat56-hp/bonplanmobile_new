@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:mobile/models/category.dart';
 import 'package:mobile/models/etablissement.dart';
+import 'package:mobile/services/apiService.dart';
 import 'package:mobile/utils/apiEndPoint.dart';
 
 class HomeController extends GetxController {
@@ -16,13 +16,10 @@ class HomeController extends GetxController {
     try {
       loading.value = true; // Début du chargement
 
-      var response = await http.get(
-        Uri.parse(ApiEndPoint.HomeData),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await ApiService.get(ApiEndPoint.HomeData);
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
+        final jsonResponse = response.data;
 
         plansOfWeek.assignAll(
           (jsonResponse['planOfWeek'] as List)
@@ -57,5 +54,21 @@ class HomeController extends GetxController {
         : planByCategory
             .where((plan) => plan.categoryId == categoryId)
             .toList();
+  }
+
+  void updateEtablissement(Etablissement etablissement) {
+    final index = plansOfWeek.indexWhere((e) => e.id == etablissement.id);
+    final indexByCategory =
+        planByCategory.indexWhere((e) => e.id == etablissement.id);
+
+    if (index != -1) {
+      plansOfWeek[index] = etablissement;
+      plansOfWeek.refresh();
+    }
+
+    if (indexByCategory != -1) {
+      plansOfWeek[indexByCategory] = etablissement;
+      plansOfWeek.refresh();
+    }
   }
 }

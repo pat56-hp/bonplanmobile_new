@@ -29,7 +29,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
   final TextEditingController _controller = TextEditingController();
   final arguments = Get.arguments;
   String _previousValue = '';
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -50,36 +49,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Future<void> _fetchData() async {
-    setState(() {
-      _isLoading = true;
-    });
-    _exploreController
-        .getEtablissement(
+    _exploreController.getEtablissement(
       libelle: widget.searchData?['libelle'],
       adresse: widget.searchData?['adresse'],
       category: widget.searchData?['category'],
       commodite: widget.searchData?['commodite'],
-    )
-        .then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    );
   }
 
   void _fetchDataByTitle(String query) {
-    setState(() {
-      _isLoading = true;
-    });
-    _exploreController
-        .getEtablissement(
+    _exploreController.getEtablissement(
       libelle: query,
-    )
-        .then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    );
   }
 
   @override
@@ -199,35 +180,33 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
             ),
             const SizedBox(height: padding),
-            Expanded(
-                child: _isLoading == true
-                    ? const LoadingCircularProgress(
-                        color: appBarBackground,
-                      )
-                    : Obx(() {
-                        return ListView(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: padding),
-                              child: Column(
-                                children: _exploreController
-                                        .filterPlanByCategory(_selectedCategory)
-                                        .isNotEmpty
-                                    ? _exploreController
-                                        .filterPlanByCategory(_selectedCategory)
-                                        .map((plan) => SmallPlan(plan: plan))
-                                        .toList()
-                                    : [
-                                        const EmptyData(
-                                            label:
-                                                'Aucun établissement disponible')
-                                      ],
-                              ),
-                            ),
-                          ],
-                        );
-                      }))
+            Expanded(child: Obx(() {
+              return _exploreController.loading.value == true
+                  ? const LoadingCircularProgress(
+                      color: appBarBackground,
+                    )
+                  : ListView(
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: padding),
+                          child: Column(
+                            children: _exploreController
+                                    .filterPlanByCategory(_selectedCategory)
+                                    .isNotEmpty
+                                ? _exploreController
+                                    .filterPlanByCategory(_selectedCategory)
+                                    .map((plan) => SmallPlan(plan: plan))
+                                    .toList()
+                                : [
+                                    const EmptyData(
+                                        label: 'Aucun établissement disponible')
+                                  ],
+                          ),
+                        ),
+                      ],
+                    );
+            }))
           ],
         )),
       ),

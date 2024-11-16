@@ -8,4 +8,7 @@ abstract class ApiEndPoint {
   static const String Categories = apiUrl + '/categories';
   static const String Commodites = apiUrl + '/commodites';
   static const String ExplorePlan = apiUrl + '/explore-plans';
+  static const String AddOrRemoveFavoris = apiUrl + '/etablissements/favoris';
+  static const String Favoris = apiUrl + '/favoris/etablissement';
+  static const String CommentaireStore = apiUrl + '/commentaires/store';
 }

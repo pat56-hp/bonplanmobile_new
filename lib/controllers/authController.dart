@@ -133,6 +133,11 @@ class AuthController extends GetxController {
         user.value = User.fromJson(jsonDecode(userData));
         Get.offAllNamed('/navigation');
       } else {
+        showSnackBarWidget(
+          type: 'error',
+          content:
+              'Votre session a été interrompue ! Veuillez vous connecter svp.',
+        );
         throw Exception('Session expiré');
       }
     } catch (e) {
@@ -147,7 +152,7 @@ class AuthController extends GetxController {
   }
 
   //Modification du profil
-  Future<bool> updateProfile(Object data) async {
+  Future updateProfile(Object data) async {
     try {
       loading.value = true;
 
@@ -169,7 +174,7 @@ class AuthController extends GetxController {
       return false;
     } catch (e) {
       loading.value = false;
-      print('Erreur lors de la restauration de la session: $e');
+      print('Erreur lors de la modification du profil: $e');
       return false;
     }
   }

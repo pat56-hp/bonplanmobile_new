@@ -10,23 +10,23 @@ Commentaire commentaireFromJson(String str) =>
 String commentaireToJson(Commentaire data) => json.encode(data.toJson());
 
 class Commentaire {
-  int? id;
-  String? commentaire;
-  int? note;
-  int? clientId;
-  int? etablissementId;
-  DateTime? createdAt;
-  String? date;
+  int id;
+  String commentaire;
+  int note;
+  int clientId;
+  int etablissementId;
+  DateTime createdAt;
+  String date;
   Client? client;
 
   Commentaire({
-    this.id,
-    this.commentaire,
-    this.note,
-    this.clientId,
-    this.etablissementId,
-    this.createdAt,
-    this.date,
+    required this.id,
+    required this.commentaire,
+    required this.note,
+    required this.clientId,
+    required this.etablissementId,
+    required this.createdAt,
+    required this.date,
     this.client,
   });
 
@@ -38,7 +38,7 @@ class Commentaire {
         etablissementId: json["etablissement_id"],
         createdAt: DateTime.parse(json["created_at"]),
         date: json["date"],
-        client: Client.fromJson(json["client"]),
+        client: json["client"] == null ? null : Client.fromJson(json["client"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -47,9 +47,9 @@ class Commentaire {
         "note": note,
         "client_id": clientId,
         "etablissement_id": etablissementId,
-        "created_at": createdAt!.toIso8601String(),
+        "created_at": createdAt.toIso8601String(),
         "date": date,
-        "client": client!.toJson(),
+        if (client != null) "client": client!.toJson(),
       };
 }
 
@@ -95,16 +95,16 @@ class Client {
       );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "type": type,
-    "name": name,
-    "lastname": lastname,
-    "email": email,
-    "phone": phone,
-    "image": image,
-    "adresse": adresse,
-    "status": status,
-    "validate": validate,
-    "created_at": createdAt.toIso8601String(),
-  };
+        "id": id,
+        "type": type,
+        "name": name,
+        "lastname": lastname,
+        "email": email,
+        "phone": phone,
+        "image": image,
+        "adresse": adresse,
+        "status": status,
+        "validate": validate,
+        "created_at": createdAt.toIso8601String(),
+      };
 }

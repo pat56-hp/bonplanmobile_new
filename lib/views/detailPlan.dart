@@ -1,15 +1,26 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:html/dom.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
+import 'package:mobile/controllers/commentaireController.dart';
+import 'package:mobile/controllers/exploreController.dart';
+import 'package:mobile/controllers/homeController.dart';
+import 'package:mobile/models/commentaire.dart';
 import 'package:mobile/models/etablissement.dart';
 import 'package:mobile/utils/apiEndPoint.dart';
+import 'package:mobile/utils/helper.dart';
 import 'package:mobile/views/widgets/ButtonWidget.dart';
 import 'package:mobile/views/widgets/IconButtonWidget.dart';
 import 'package:mobile/views/widgets/ImageWidget.dart';
 import 'package:mobile/views/widgets/TextWidget.dart';
 import 'package:mobile/views/widgets/TextWidgetTroncate.dart';
-import 'package:mobile/views/widgets/WishlistButton.dart';
+import 'package:mobile/views/widgets/inputWidget.dart';
+import 'package:mobile/views/widgets/loadingCircularProgress.dart';
+import 'package:mobile/views/widgets/stars.dart';
+import 'package:mobile/views/widgets/wishlistButton.dart';
 import 'package:mobile/views/widgets/details/commoditeHoraire.dart';
 import 'package:mobile/views/widgets/details/galley.dart';
 import 'package:mobile/views/widgets/details/planEmplacement.dart';
@@ -25,11 +36,210 @@ class DetailPlan extends StatefulWidget {
 }
 
 class _DetailPlanState extends State<DetailPlan> {
+  late Etablissement etablissement = Get.arguments;
+  final TextEditingController _commentaireInputController =
+      TextEditingController();
+  final CommentaireController _commentaireController =
+      Get.put(CommentaireController());
+  final HomeController _homeController = Get.find<HomeController>();
+  final ExploreController _exploreController = Get.find<ExploreController>();
+  int _noteSelected = 0;
+
   @override
   Widget build(BuildContext context) {
-    final Etablissement etablissement = Get.arguments;
     var document = parse(etablissement.description.toString());
     String description = document.body?.text ?? '';
+    List<Commentaire> commentaires = etablissement.commentaires!;
+
+    Future storeCommentaire() async {
+      if (_commentaireInputController.text == '' || _noteSelected == 0) {
+        showDialogWidget('Erreur',
+            'Veuillez renseigner un commentaire et donner votre avis svp.');
+        return;
+      }
+
+      final bool response = await _commentaireController.storeCommentaire(
+        commentaires: _commentaireInputController.text,
+        note: _noteSelected,
+        etablissementId: etablissement.id!,
+      );
+
+      if (response) {
+        _commentaireInputController.clear();
+        _noteSelected = 0;
+        setState(() {
+          etablissement = _commentaireController.etablissement.value!;
+        });
+
+        Get.back();
+        showSnackBarWidget(
+            type: 'success', content: 'Votre commentaire a été ajouté');
+      } else {
+        showSnackBarWidget(
+            type: 'error', content: 'Oups, une erreur s\'est produite.');
+      }
+    }
+
+    void showModalComment() {
+      Get.bottomSheet(
+        StatefulBuilder(// Ajout du StatefulBuilder
+            builder: (BuildContext context, StateSetter setModalState) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(padding),
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                TextWidget(label: 'Donner votre avis', extra: const {
+                  'fontWeight': FontWeight.bold,
+                  'size': title
+                }),
+                const SizedBox(
+                  height: 15,
+                ),
+                Expanded(
+                  child: Scrollbar(
+                    thickness: 2,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                                color: Color(0xFFc5e7fc),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/signal.svg',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Expanded(
+                                  child: TextWidget(
+                                    label:
+                                        'Votre avis permet aux autres utilisateurs de faire leur choix',
+                                    extra: const {'textAlign': TextAlign.start},
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 25,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              TextWidget(label: 'Commentaire', extra: const {
+                                'textAlign': TextAlign.start,
+                                'fontWeight': FontWeight.w500
+                              }),
+                            ],
+                          ),
+                          InputWidget(
+                            controller: _commentaireInputController,
+                            hintText: 'Commentaire',
+                            prefixIcon: 'assets/icons/comment.svg',
+                          ),
+                          const SizedBox(
+                            height: padding,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              TextWidget(
+                                  label: 'Ajouter une note',
+                                  extra: const {
+                                    'textAlign': TextAlign.start,
+                                    'fontWeight': FontWeight.w500
+                                  }),
+                            ],
+                          ),
+                          Flexible(
+                              child: Column(
+                            children: [
+                              ...List.generate(5, (index) {
+                                return RadioListTile(
+                                  groupValue: _noteSelected,
+                                  overlayColor:
+                                      WidgetStateProperty.all(profilBorder),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 0, vertical: 0),
+                                  controlAffinity:
+                                      ListTileControlAffinity.leading,
+                                  activeColor: appBarBackground,
+                                  title: Stars(
+                                      note: (5 - index).toDouble(), size: 20),
+                                  value: 5 - index,
+                                  onChanged: (note) {
+                                    setModalState(() {
+                                      _noteSelected = 5 - index;
+                                    });
+                                  },
+                                );
+                              })
+                            ],
+                          )),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.only(top: 15),
+                  margin: const EdgeInsets.only(top: 10),
+                  decoration: BoxDecoration(
+                      border: Border(top: BorderSide(color: border))),
+                  child: Obx(() {
+                    return _commentaireController.loading.value
+                        ? const LoadingCircularProgress(
+                            color: appBarBackground,
+                          )
+                        : Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 50,
+                                  child: ButtonWidget(
+                                    label: 'Valider',
+                                    onPress: storeCommentaire,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 50,
+                                  child: ButtonWidget(
+                                    label: 'Fermer',
+                                    backgroundColor: borderActive,
+                                    onPress: Get.back,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                  }),
+                )
+              ],
+            ),
+          );
+        }),
+        backgroundColor: backgroundColorWhite,
+        isDismissible: true,
+      );
+    }
 
     return Scaffold(
       body: Stack(children: [
@@ -54,7 +264,7 @@ class _DetailPlanState extends State<DetailPlan> {
                 padding: 10,
                 pressFunction: () => Navigator.of(context).pop(),
               ),
-              const WishlistButton()
+              WishlistButton(etablissement: etablissement)
             ],
           ),
         ),
@@ -136,11 +346,10 @@ class _DetailPlanState extends State<DetailPlan> {
                                   const SizedBox(
                                     height: 30,
                                   ),
-                                  if (etablissement.commentaires!.isNotEmpty)
+                                  if (commentaires.isNotEmpty)
                                     Column(children: [
                                       AvisCommentaire(
-                                        commentaires:
-                                            etablissement.commentaires!,
+                                        commentaires: commentaires,
                                       ),
                                       /* const SizedBox(
                                         height: 30,
@@ -171,8 +380,18 @@ class _DetailPlanState extends State<DetailPlan> {
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20), topRight: Radius.circular(20)),
         ),
-        child: const Row(
+        child: Row(
           children: [
+            Expanded(
+              child: SizedBox(
+                height: 54,
+                child: ButtonWidget(
+                    label: 'Donner une note', onPress: showModalComment),
+              ),
+            ),
+            SizedBox(
+              width: 8,
+            ),
             IconButtonWidget(
               backgroundColor: favorisBackground,
               icon: 'assets/icons/share.svg',
@@ -180,24 +399,6 @@ class _DetailPlanState extends State<DetailPlan> {
               padding: 14,
               borderRadius: 15,
             ),
-            SizedBox(
-              width: 8,
-            ),
-            SizedBox(
-              height: 54,
-              child: ButtonWidget(
-                label: 'Donner un avis',
-              ),
-            ),
-            SizedBox(
-              width: 8,
-            ),
-            SizedBox(
-              height: 54,
-              child: ButtonWidget(
-                label: 'Signaler',
-              ),
-            )
           ],
         ),
       ),

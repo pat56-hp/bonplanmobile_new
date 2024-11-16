@@ -59,7 +59,9 @@ class LargePlan extends StatelessWidget {
                       label: etablissement.statusOuverture,
                       status: etablissement.open ?? false,
                     ),
-                    const WishlistButton()
+                    WishlistButton(
+                      etablissement: etablissement,
+                    )
                   ],
                 ),
               )

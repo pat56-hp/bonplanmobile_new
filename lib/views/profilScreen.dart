@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
@@ -162,6 +163,21 @@ class _ProfilScreenState extends State<ProfilScreen> {
         appBar: AppBar(
           centerTitle: true,
           backgroundColor: backgroundColor,
+          leading: Navigator.canPop(context)
+              ? Container(
+                  padding: const EdgeInsets.all(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    radius: 24,
+                    onTap: () => Get.back(),
+                    child: SvgPicture.asset(
+                      'assets/icons/icon-left.svg',
+                      width: 22,
+                      height: 22,
+                    ),
+                  ),
+                )
+              : null,
           title: const TextWidget(
             label: 'Mon profil',
             extra: {'color': Colors.black, 'size': title},
@@ -252,32 +268,34 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                     icon: 'assets/icons/user.svg',
                                     label: 'Nom',
                                     labelValue:
-                                        _authController.user.value!.name,
+                                        _authController.user.value?.name ?? '',
                                     border: true,
                                   ),
                                   Info(
                                       icon: 'assets/icons/user.svg',
                                       label: 'Prénom(s)',
-                                      labelValue:
-                                          _authController.user.value!.lastname,
+                                      labelValue: _authController
+                                              .user.value?.lastname ??
+                                          '',
                                       border: true),
                                   Info(
                                       icon: 'assets/icons/phone.svg',
                                       label: 'Contact',
                                       labelValue:
-                                          '+${_authController.user.value!.phone}',
+                                          '+${_authController.user.value?.phone ?? ''}',
                                       border: true),
                                   Info(
                                       icon: 'assets/icons/envelope.svg',
                                       label: 'Email',
                                       labelValue:
-                                          _authController.user.value!.email,
+                                          _authController.user.value?.email ??
+                                              '',
                                       border: true),
                                   Info(
                                     icon: 'assets/icons/marker.svg',
                                     label: 'Adresse',
                                     labelValue:
-                                        _authController.user.value!.adresse ??
+                                        _authController.user.value?.adresse ??
                                             'Aucune adresse',
                                   ),
                                 ],

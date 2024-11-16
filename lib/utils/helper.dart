@@ -37,7 +37,7 @@ void showDialogWidget(String title, String content) {
       color: Colors.black,
       fontWeight: FontWeight.w500,
     ),
-    middleText: content,
+    //middleText: content,
     middleTextStyle: const TextStyle(
       fontSize: textSize,
       color: textColor,

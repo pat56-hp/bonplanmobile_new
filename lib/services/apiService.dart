@@ -16,6 +16,7 @@ class ApiService {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
         //Ajout du token
+        options.headers['Accept'] = 'application/json';
         final token = Get.find<AuthController>().getToken();
 
         if (token != null) {
@@ -35,6 +36,11 @@ class ApiService {
     try {
       switch (e.response?.statusCode) {
         case 401:
+          showSnackBarWidget(
+            type: 'error',
+            content:
+                'Votre session a été interrompue ! Veuillez vous connecter svp.',
+          );
           await Get.find<AuthController>().logout();
           break;
 
@@ -55,6 +61,7 @@ class ApiService {
           break;
 
         default:
+          print('######## Status code : ${e.response?.statusCode}');
           showDialogWidget('Erreur',
               'Une erreur inattendue est survenue. Veuillez réessayer.');
           break;
@@ -69,7 +76,7 @@ class ApiService {
     return await _dio.post(path, data: data);
   }
 
-  static Future get(String path) async {
-    return await _dio.get(path);
+  static Future get(String path, {Map<String, dynamic>? query}) async {
+    return await _dio.get(path, queryParameters: query);
   }
 }

@@ -20,13 +20,17 @@ class WeekPlan extends StatelessWidget {
           padding:
               const EdgeInsets.symmetric(horizontal: padding, vertical: 10),
           itemBuilder: (context, index) {
-            return Padding(
-              padding: EdgeInsets.only(
-                  right:
-                      index < homeController.plansOfWeek.length ? 20.0 : 0.0),
-              child:
-                  LargePlan(etablissement: homeController.plansOfWeek[index]),
-            );
+            return index != -1
+                ? Padding(
+                    padding: EdgeInsets.only(
+                        right: index < homeController.plansOfWeek.length
+                            ? 20.0
+                            : 0.0),
+                    child: LargePlan(
+                      etablissement: homeController.plansOfWeek[index],
+                    ),
+                  )
+                : const SizedBox.shrink();
           }),
     );
   }

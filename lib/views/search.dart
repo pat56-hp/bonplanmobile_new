@@ -74,7 +74,7 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
-    void _filterSendData() {
+    void filterSendData() {
       List categoryIds =
           _selectedCategory.map((category) => category.id).toList();
       List commoditeIds =
@@ -451,7 +451,7 @@ class _SearchState extends State<Search> {
             SizedBox(
               height: 50,
               child: ButtonWidget(
-                onPress: _filterSendData,
+                onPress: filterSendData,
                 iconWidget: Row(
                   children: [
                     SvgPicture.asset(

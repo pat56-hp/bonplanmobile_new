@@ -9,6 +9,7 @@ import 'package:mobile/views/widgets/ImageWidget.dart';
 import 'package:mobile/views/widgets/Stars.dart';
 import 'package:mobile/views/widgets/StatusPlan.dart';
 import 'package:mobile/views/widgets/TextWidget.dart';
+import 'package:mobile/views/widgets/wishlistButton.dart';
 
 class SmallPlan extends StatelessWidget {
   const SmallPlan({super.key, required this.plan});
@@ -36,13 +37,24 @@ class SmallPlan extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 68,
-              width: 82,
-              child: ImageWidget(
-                imgUrl: ApiEndPoint.apiUrlDomaine + plan.image.toString(),
-                borderRadius: 15.0,
-              ),
+            Stack(
+              children: [
+                SizedBox(
+                  height: 68,
+                  width: 82,
+                  child: ImageWidget(
+                    imgUrl: ApiEndPoint.apiUrlDomaine + plan.image.toString(),
+                    borderRadius: 15.0,
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: WishlistButton(
+                    etablissement: plan,
+                  ),
+                )
+              ],
             ),
             const SizedBox(
               width: 10,
