@@ -25,24 +25,24 @@ class _WishlistButtonState extends State<WishlistButton> {
   final String heartFavoriteIcon = 'assets/icons/heart-active.svg';
   late bool isFavorite = widget.etablissement.favoris!;
 
-  Future _handleAddOrRemoveFavorite() async {
-    final response =
-        await _favorisController.handleAddOrRemove(widget.etablissement);
-
-    setState(() {
-      if (response == true) {
-        isFavorite = true;
-      } else if (response == false) {
-        isFavorite = false;
-      }
-      _homeController.updateEtablissement(widget.etablissement);
-      _exploreController.updateEtablissement(widget.etablissement);
-      _favorisController.updateEtablissementFavoris(widget.etablissement);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    Future _handleAddOrRemoveFavorite() async {
+      final response =
+          await _favorisController.handleAddOrRemove(widget.etablissement);
+
+      setState(() {
+        if (response == true) {
+          isFavorite = true;
+        } else if (response == false) {
+          isFavorite = false;
+        }
+        _homeController.updateEtablissement(widget.etablissement);
+        _exploreController.updateEtablissement(widget.etablissement);
+        _favorisController.updateEtablissementFavoris(widget.etablissement);
+      });
+    }
+
     //print('Favoris ${widget.etablissement.id} : ${widget.etablissement.favoris}');
     return InkWell(
       onTap: _handleAddOrRemoveFavorite,

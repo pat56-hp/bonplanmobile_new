@@ -1,20 +1,128 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
 import 'package:mobile/models/commentaire.dart';
+import 'package:mobile/models/etablissement.dart';
+import 'package:mobile/views/widgets/IconButtonWidget.dart';
 import 'package:mobile/views/widgets/Stars.dart';
 import 'package:mobile/views/widgets/TextWidget.dart';
 import 'package:mobile/views/widgets/UserImage.dart';
+import 'package:mobile/views/widgets/commentaireWidget.dart';
 import 'package:mobile/views/widgets/textWidgetTroncate.dart';
 
 class AvisCommentaire extends StatelessWidget {
-  const AvisCommentaire({super.key, required this.commentaires});
+  const AvisCommentaire({super.key, required this.etablissement});
 
-  final List<Commentaire> commentaires;
+  final Etablissement etablissement;
 
   @override
   Widget build(BuildContext context) {
+    List<Commentaire> commentaires = etablissement.commentaires!;
+
+    void showModelCommentaires() => showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (context) => Container(
+              constraints: BoxConstraints(
+                minHeight: 200,
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
+              ),
+              width: double.infinity,
+              padding: const EdgeInsets.only(
+                  left: padding, right: padding, bottom: padding),
+              decoration: const BoxDecoration(
+                  color: backgroundColorWhite,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25))),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 80,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: profilBorder, width: 0.7),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              height: 45,
+                              width: 45,
+                              decoration: ShapeDecoration(
+                                shape: CircleBorder(
+                                  side:
+                                      BorderSide(color: Colors.black, width: 2),
+                                ),
+                              ),
+                              child: TextWidget(
+                                  label: etablissement.note!
+                                      .toDouble()
+                                      .toString()),
+                            ),
+                            const SizedBox(
+                              width: 15,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextWidget(
+                                  label: 'Commentaires',
+                                  extra: const {
+                                    'size': subtitle,
+                                    'color': titleColor,
+                                  },
+                                ),
+                                TextWidget(
+                                    label:
+                                        'Basé sur ${commentaires.length} avis')
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 28,
+                          width: 28,
+                          child: IconButtonWidget(
+                              backgroundColor: profilBorder,
+                              icon: 'assets/icons/cross.svg',
+                              sizeIcon: 14,
+                              padding: 0,
+                              colorIcon: backgroundColorWhite,
+                              pressFunction: () => Get.back()),
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Scrollbar(
+                        child: SingleChildScrollView(
+                      child: Wrap(
+                        runSpacing: 10,
+                        children: commentaires
+                            .map((commentaire) =>
+                                CommentaireWidget(commentaire: commentaire))
+                            .toList(),
+                      ),
+                    )),
+                  )
+                ],
+              ),
+            ));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -29,61 +137,7 @@ class AvisCommentaire extends StatelessWidget {
           runSpacing: 10,
           children: commentaires
               .take(2)
-              .map((commentaire) => Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: backgroundColor),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const UserImage(
-                        height: 44,
-                        width: 44,
-                        borderRadius: 22,
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      Expanded(
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  TextWidget(
-                                    label:
-                                        '${commentaire.client?.name.toString()} ${commentaire.client?.lastname.toString()}',
-                                    extra: const {
-                                      'fontWeight': FontWeight.w500,
-                                    },
-                                  ),
-                                  TextWidget(
-                                    label: commentaire.date.toString(),
-                                  )
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              Stars(
-                                size: 14,
-                                note: commentaire.note.toDouble(),
-                              ),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              TextWidgetTroncate(
-                                text: commentaire.commentaire.toString(),
-                                maxLines: 140,
-                              )
-                            ]),
-                      )
-                    ],
-                  )))
+              .map((commentaire) => CommentaireWidget(commentaire: commentaire))
               .toList(),
         ),
         const SizedBox(
@@ -99,13 +153,16 @@ class AvisCommentaire extends StatelessWidget {
                 highlightColor: Colors.grey.withOpacity(0.2),
                 child: Row(
                   children: [
-                    const TextWidget(
-                      label: 'Voir plus',
-                      extra: {
-                        'size': textSize,
-                        'color': textRed,
-                        'fontWeight': FontWeight.bold,
-                      },
+                    InkWell(
+                      onTap: showModelCommentaires,
+                      child: const TextWidget(
+                        label: 'Voir plus',
+                        extra: {
+                          'size': textSize,
+                          'color': textRed,
+                          'fontWeight': FontWeight.bold,
+                        },
+                      ),
                     ),
                     SvgPicture.asset(
                       'assets/icons/icon-right.svg',

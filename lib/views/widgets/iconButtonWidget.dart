@@ -4,7 +4,7 @@ import 'package:mobile/constants/color.dart';
 
 class IconButtonWidget extends StatelessWidget {
   const IconButtonWidget({
-    Key? key,
+    super.key,
     required this.backgroundColor,
     required this.icon,
     this.padding,
@@ -12,7 +12,7 @@ class IconButtonWidget extends StatelessWidget {
     this.pressFunction,
     this.sizeIcon,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   final Color backgroundColor;
   final String icon;

@@ -1,13 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:html/dom.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
 import 'package:mobile/controllers/commentaireController.dart';
-import 'package:mobile/controllers/exploreController.dart';
-import 'package:mobile/controllers/homeController.dart';
 import 'package:mobile/models/commentaire.dart';
 import 'package:mobile/models/etablissement.dart';
 import 'package:mobile/utils/apiEndPoint.dart';
@@ -41,15 +37,12 @@ class _DetailPlanState extends State<DetailPlan> {
       TextEditingController();
   final CommentaireController _commentaireController =
       Get.put(CommentaireController());
-  final HomeController _homeController = Get.find<HomeController>();
-  final ExploreController _exploreController = Get.find<ExploreController>();
   int _noteSelected = 0;
 
   @override
   Widget build(BuildContext context) {
     var document = parse(etablissement.description.toString());
     String description = document.body?.text ?? '';
-    List<Commentaire> commentaires = etablissement.commentaires!;
 
     Future storeCommentaire() async {
       if (_commentaireInputController.text == '' || _noteSelected == 0) {
@@ -85,6 +78,10 @@ class _DetailPlanState extends State<DetailPlan> {
         StatefulBuilder(// Ajout du StatefulBuilder
             builder: (BuildContext context, StateSetter setModalState) {
           return Container(
+            constraints: BoxConstraints(
+              minHeight: 200,
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
             width: double.infinity,
             padding: const EdgeInsets.all(padding),
             child: Column(
@@ -238,6 +235,7 @@ class _DetailPlanState extends State<DetailPlan> {
         }),
         backgroundColor: backgroundColorWhite,
         isDismissible: true,
+        isScrollControlled: true,
       );
     }
 
@@ -284,16 +282,15 @@ class _DetailPlanState extends State<DetailPlan> {
                 child: SizedBox(
                   width: double.infinity,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: padding, vertical: 12),
+                    padding: const EdgeInsets.all(padding),
                     child: Column(
                       children: [
-                        Container(
+                        /* Container(
                           margin: const EdgeInsets.only(bottom: 15),
                           height: 4,
                           width: 70,
                           color: profilBorder,
-                        ),
+                        ), */
                         Expanded(
                           child: SingleChildScrollView(
                               controller: scrollController,
@@ -346,10 +343,10 @@ class _DetailPlanState extends State<DetailPlan> {
                                   const SizedBox(
                                     height: 30,
                                   ),
-                                  if (commentaires.isNotEmpty)
+                                  if (etablissement.commentaires!.isNotEmpty)
                                     Column(children: [
                                       AvisCommentaire(
-                                        commentaires: commentaires,
+                                        etablissement: etablissement,
                                       ),
                                       /* const SizedBox(
                                         height: 30,
