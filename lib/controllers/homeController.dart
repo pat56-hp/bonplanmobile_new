@@ -57,11 +57,27 @@ class HomeController extends GetxController {
   }
 
   void updateEtablissement(Etablissement etablissement) {
-    final index = plansOfWeek.indexWhere((e) => e.id == etablissement.id);
-    final indexByCategory =
-        planByCategory.indexWhere((e) => e.id == etablissement.id);
+    //final index = plansOfWeek.indexWhere((e) => e.id == etablissement.id);
+    /* final indexByCategory =
+        planByCategory.indexWhere((e) => e.id == etablissement.id); */
 
-    if (index != -1) {
+    var etablissementExist =
+        plansOfWeek.where((e) => e.id == etablissement.id).firstOrNull;
+
+    var etablissementCategoryExist =
+        planByCategory.where((e) => e.id == etablissement.id).firstOrNull;
+
+    if (etablissementExist != null) {
+      etablissementExist = etablissement;
+      plansOfWeek.refresh();
+    }
+
+    if (etablissementCategoryExist != null) {
+      etablissementCategoryExist = etablissement;
+      planByCategory.refresh();
+    }
+
+    /* if (index != -1) {
       plansOfWeek[index] = etablissement;
       plansOfWeek.refresh();
     }
@@ -69,6 +85,6 @@ class HomeController extends GetxController {
     if (indexByCategory != -1) {
       plansOfWeek[indexByCategory] = etablissement;
       plansOfWeek.refresh();
-    }
+    } */
   }
 }

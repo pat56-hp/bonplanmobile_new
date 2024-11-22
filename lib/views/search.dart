@@ -87,7 +87,7 @@ class _SearchState extends State<Search> {
         'commodite': commoditeIds.join(','),
       };
 
-      Get.off(() => ExploreScreen(searchData: data));
+      Get.to(() => ExploreScreen(searchData: data));
     }
 
     void showBottomSheetbarCategory() {

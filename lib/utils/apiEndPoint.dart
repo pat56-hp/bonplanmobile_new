@@ -4,6 +4,7 @@ abstract class ApiEndPoint {
   static const String Login = '/login';
   static const String Register = '/register';
   static const String UpdateProfile = '/profile/update';
+  static const String UpdateProfileImage = '/profile/update/image';
   static const String HomeData = apiUrl + '/homeData';
   static const String Categories = apiUrl + '/categories';
   static const String Commodites = apiUrl + '/commodites';

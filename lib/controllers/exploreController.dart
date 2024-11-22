@@ -86,10 +86,11 @@ class ExploreController extends GetxController {
   }
 
   void updateEtablissement(Etablissement etablissement) {
-    final index = plans.indexWhere((e) => e.id == etablissement.id);
+    var etablissementExist =
+        plans.where((e) => e.id == etablissement.id).firstOrNull;
 
-    if (index != -1) {
-      plans[index] = etablissement;
+    if (etablissementExist != null) {
+      etablissementExist = etablissement;
       plans.refresh();
     }
   }

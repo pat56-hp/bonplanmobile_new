@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile/models/user.dart';
 import 'package:mobile/services/apiService.dart';
 import 'package:mobile/utils/apiEndPoint.dart';
 import 'package:mobile/utils/helper.dart';
+import 'package:dio/dio.dart' as dio;
 
 //Controller of Authenticated User
 class AuthController extends GetxController {
@@ -15,10 +17,13 @@ class AuthController extends GetxController {
   final RxBool isLogdedIn = false.obs;
   final RxBool loading = false.obs;
   final RxString errors = ''.obs;
+  final RxString selectedImagePath = ''.obs;
 
   final _storage = GetStorage();
   final _tokenKey = 'auth_token';
   final _userKey = 'user_data';
+
+  final ImagePicker _picker = ImagePicker();
 
   //Getter pour verifier si l'utilisateur est connecté
   bool get isAuthenticated => user.value != null && getToken() != null;
@@ -176,6 +181,44 @@ class AuthController extends GetxController {
       loading.value = false;
       print('Erreur lors de la modification du profil: $e');
       return false;
+    }
+  }
+
+  Future<void> pickImage(ImageSource source) async {
+    final XFile? image = await _picker.pickImage(source: source);
+    if (image != null) {
+      selectedImagePath.value = image.path;
+      updatedProfileImage();
+    }
+  }
+
+  Future<void> updatedProfileImage() async {
+    if (selectedImagePath.value == '') {
+      showSnackBarWidget(
+          type: 'error', content: 'Veuillez sélectionner une image svp.');
+      return;
+    }
+
+    try {
+      // Préparation du fichier
+      dio.FormData formData = dio.FormData.fromMap({
+        'image': await dio.MultipartFile.fromFile(
+          selectedImagePath.value,
+          filename: selectedImagePath.value.split('/').last,
+        )
+      });
+
+      //Envoie de la requete
+      final response =
+          await ApiService.post(ApiEndPoint.UpdateProfileImage, formData);
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        user.value = User.fromJson(data['data']);
+        Get.back();
+      }
+    } catch (e) {
+      print('Http Error : ${e.toString()}');
     }
   }
 

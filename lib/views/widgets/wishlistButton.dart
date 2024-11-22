@@ -27,7 +27,7 @@ class _WishlistButtonState extends State<WishlistButton> {
 
   @override
   Widget build(BuildContext context) {
-    Future _handleAddOrRemoveFavorite() async {
+    Future handleAddOrRemoveFavorite() async {
       final response =
           await _favorisController.handleAddOrRemove(widget.etablissement);
 
@@ -45,7 +45,7 @@ class _WishlistButtonState extends State<WishlistButton> {
 
     //print('Favoris ${widget.etablissement.id} : ${widget.etablissement.favoris}');
     return InkWell(
-      onTap: _handleAddOrRemoveFavorite,
+      onTap: handleAddOrRemoveFavorite,
       splashColor: const Color.fromARGB(255, 233, 206, 206)
           .withOpacity(0.3), // Couleur de l'effet "splash"
       highlightColor: const Color.fromARGB(255, 189, 159, 159).withOpacity(0.2),

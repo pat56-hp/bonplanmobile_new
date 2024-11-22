@@ -6,11 +6,22 @@ import 'package:mobile/views/widgets/iconButtonWidget.dart';
 import 'package:mobile/views/widgets/stars.dart';
 import 'package:mobile/views/widgets/statusPlan.dart';
 import 'package:mobile/views/widgets/textWidget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PlanInfoTop extends StatelessWidget {
   const PlanInfoTop({super.key, required this.etablissement});
 
   final Etablissement etablissement;
+
+  //Lancer l'appel de l'etablissement
+  Future<void> makePhoneContact() async {
+    final Uri url = Uri(scheme: 'tel', path: etablissement.phone.toString());
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      print('Impossible de lancer l\'appel');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +78,7 @@ class PlanInfoTop extends StatelessWidget {
                 )
               ],
             ),
-            const Row(
+            Row(
               children: [
                 IconButtonWidget(
                   backgroundColor: favorisBackground,
@@ -82,6 +93,7 @@ class PlanInfoTop extends StatelessWidget {
                   padding: 0,
                   sizeIcon: 18,
                   borderRadius: 50,
+                  pressFunction: () => makePhoneContact(),
                 )
               ],
             )

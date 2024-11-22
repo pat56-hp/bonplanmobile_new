@@ -6,11 +6,8 @@ import 'package:mobile/constants/size.dart';
 import 'package:mobile/models/commentaire.dart';
 import 'package:mobile/models/etablissement.dart';
 import 'package:mobile/views/widgets/IconButtonWidget.dart';
-import 'package:mobile/views/widgets/Stars.dart';
 import 'package:mobile/views/widgets/TextWidget.dart';
-import 'package:mobile/views/widgets/UserImage.dart';
 import 'package:mobile/views/widgets/commentaireWidget.dart';
-import 'package:mobile/views/widgets/textWidgetTroncate.dart';
 
 class AvisCommentaire extends StatelessWidget {
   const AvisCommentaire({super.key, required this.etablissement});

@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
 import 'package:mobile/controllers/commentaireController.dart';
-import 'package:mobile/models/commentaire.dart';
 import 'package:mobile/models/etablissement.dart';
 import 'package:mobile/utils/apiEndPoint.dart';
 import 'package:mobile/utils/helper.dart';
@@ -44,6 +43,7 @@ class _DetailPlanState extends State<DetailPlan> {
     var document = parse(etablissement.description.toString());
     String description = document.body?.text ?? '';
 
+    //Envoie et stockage du commentaire
     Future storeCommentaire() async {
       if (_commentaireInputController.text == '' || _noteSelected == 0) {
         showDialogWidget('Erreur',
@@ -73,6 +73,7 @@ class _DetailPlanState extends State<DetailPlan> {
       }
     }
 
+    //Affichage de tous les commentaires
     void showModalComment() {
       Get.bottomSheet(
         StatefulBuilder(// Ajout du StatefulBuilder
@@ -260,7 +261,7 @@ class _DetailPlanState extends State<DetailPlan> {
                 backgroundColor: buttonColor,
                 icon: 'assets/icons/icon-left.svg',
                 padding: 10,
-                pressFunction: () => Navigator.of(context).pop(),
+                pressFunction: () => Get.back(),
               ),
               WishlistButton(etablissement: etablissement)
             ],

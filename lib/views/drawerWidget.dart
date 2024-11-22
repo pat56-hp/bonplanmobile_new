@@ -41,11 +41,12 @@ class _DrawerWidgetState extends State<DrawerWidget> {
           ),
           Column(
             children: [
-              const UserImage(
+              UserImage(
                 height: 98,
                 width: 98,
                 borderColor: buttonDefaultColor,
                 borderRadius: 49,
+                image: _authController.user.value!.image,
               ),
               const SizedBox(
                 height: 20,

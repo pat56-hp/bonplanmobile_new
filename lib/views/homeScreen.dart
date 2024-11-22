@@ -41,6 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _refresh() async {
+    await Future.delayed(Duration(seconds: 2));
+
+    _homeController.getHomeData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +57,11 @@ class _HomeScreenState extends State<HomeScreen> {
         toolbarHeight: 70.0,
         title: Row(
           children: [
-            const UserImage(height: 56, width: 56),
+            UserImage(
+              height: 56,
+              width: 56,
+              image: _authController.user.value!.image,
+            ),
             const SizedBox(
               width: 13,
             ),
@@ -97,173 +107,179 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: SafeArea(
-        child: ListView(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 200,
-                  padding: const EdgeInsets.only(
-                    left: padding,
-                    right: padding,
-                    bottom: 80,
-                  ),
-                  decoration: const BoxDecoration(
-                    color: appBarBackground,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(15),
-                      bottomRight: Radius.circular(15),
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          child: ListView(
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    height: 200,
+                    padding: const EdgeInsets.only(
+                      left: padding,
+                      right: padding,
+                      bottom: 80,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: appBarBackground,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(15),
+                        bottomRight: Radius.circular(15),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 20),
+                        /** Input de recherche **/
+                        InputWidget(
+                          readOnly: true,
+                          clickFunction: () => Get.toNamed('/search'),
+                          hintText: 'Retrouver un établissement',
+                          prefixIcon: 'assets/icons/search.svg',
+                          hintTextColor: placeholderColor,
+                        ),
+                        SizedBox(height: 30),
+                        /** Titre et bouton voir plus **/
+                      ],
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 20),
-                      /** Input de recherche **/
-                      InputWidget(
-                        readOnly: true,
-                        clickFunction: () => Get.toNamed('/search'),
-                        hintText: 'Retrouver un établissement',
-                        prefixIcon: 'assets/icons/search.svg',
-                        hintTextColor: placeholderColor,
-                      ),
-                      SizedBox(height: 30),
-                      /** Titre et bouton voir plus **/
-                    ],
-                  ),
-                ),
-                Obx(() {
-                  return _homeController.loading.value
-                      ? Container(
-                          margin: const EdgeInsets.only(top: 120),
-                          child: const LoadingCircularProgress(),
-                        )
-                      : Container(
-                          margin: const EdgeInsets.only(top: 100),
-                          child: Column(
-                            children: [
-                              const Padding(
-                                padding:
-                                    EdgeInsets.symmetric(horizontal: padding),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    TextWidget(
-                                      label: 'Les plans de la semaine',
-                                      extra: {
-                                        'size': subtitle,
-                                        'color': textWhite,
-                                        'fontWeight': FontWeight.bold,
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const WeekPlan(),
-                              const SizedBox(height: 30),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: padding),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Expanded(
-                                      child: TextWidget(
-                                        label:
-                                            'Les établissements par catégorie',
+                  Obx(() {
+                    return _homeController.loading.value
+                        ? Container(
+                            margin: const EdgeInsets.only(top: 120),
+                            child: const LoadingCircularProgress(),
+                          )
+                        : Container(
+                            margin: const EdgeInsets.only(top: 100),
+                            child: Column(
+                              children: [
+                                const Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: padding),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      TextWidget(
+                                        label: 'Les plans de la semaine',
                                         extra: {
                                           'size': subtitle,
-                                          'color': titleColor,
+                                          'color': textWhite,
                                           'fontWeight': FontWeight.bold,
-                                          'textAlign': TextAlign.start,
                                         },
                                       ),
-                                    ),
-                                    InkWell(
-                                      onTap: () => Get.toNamed('/explore'),
-                                      splashColor: Colors.grey.withOpacity(0.3),
-                                      highlightColor:
-                                          Colors.grey.withOpacity(0.2),
-                                      child: Row(
-                                        children: [
-                                          const TextWidget(
-                                            label: 'Voir plus',
-                                            extra: {
-                                              'size': textSize,
-                                              'color': textRed,
-                                              'fontWeight': FontWeight.bold,
-                                            },
-                                          ),
-                                          SvgPicture.asset(
-                                            'assets/icons/icon-right.svg',
-                                            color: textRed,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 10),
-                              SizedBox(
-                                height: 75,
-                                child: ListView(
-                                  scrollDirection: Axis.horizontal,
+                                const WeekPlan(),
+                                const SizedBox(height: 30),
+                                Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: padding, vertical: 10),
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => selectedCategory(0),
-                                      child: CategoryButton(
-                                        categoryLabel: 'Tous',
-                                        selectedCategory: _selectedCategory,
-                                        index: 0,
+                                      horizontal: padding),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Expanded(
+                                        child: TextWidget(
+                                          label:
+                                              'Les établissements par catégorie',
+                                          extra: {
+                                            'size': subtitle,
+                                            'color': titleColor,
+                                            'fontWeight': FontWeight.bold,
+                                            'textAlign': TextAlign.start,
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                    ..._homeController.categories
-                                        .map((plan) => GestureDetector(
-                                              onTap: () =>
-                                                  selectedCategory(plan.id!),
-                                              child: CategoryButton(
-                                                categoryLabel: plan.libelle!,
-                                                selectedCategory:
-                                                    _selectedCategory,
-                                                index: plan.id!,
-                                              ),
-                                            ))
-                                  ],
+                                      InkWell(
+                                        onTap: () => Get.toNamed('/explore'),
+                                        splashColor:
+                                            Colors.grey.withOpacity(0.3),
+                                        highlightColor:
+                                            Colors.grey.withOpacity(0.2),
+                                        child: Row(
+                                          children: [
+                                            const TextWidget(
+                                              label: 'Voir plus',
+                                              extra: {
+                                                'size': textSize,
+                                                'color': textRed,
+                                                'fontWeight': FontWeight.bold,
+                                              },
+                                            ),
+                                            SvgPicture.asset(
+                                              'assets/icons/icon-right.svg',
+                                              color: textRed,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 10),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: padding),
-                                child: Column(
-                                  children: _homeController
-                                          .filterPlanByCategory(
-                                              _selectedCategory)
-                                          .isNotEmpty
-                                      ? _homeController
-                                          .filterPlanByCategory(
-                                              _selectedCategory)
-                                          .map((plan) => SmallPlan(plan: plan))
-                                          .toList()
-                                      : [
-                                          const EmptyData(
-                                              label:
-                                                  'Aucun établissement disponible')
-                                        ],
+                                const SizedBox(height: 10),
+                                SizedBox(
+                                  height: 75,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: padding, vertical: 10),
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => selectedCategory(0),
+                                        child: CategoryButton(
+                                          categoryLabel: 'Tous',
+                                          selectedCategory: _selectedCategory,
+                                          index: 0,
+                                        ),
+                                      ),
+                                      ..._homeController.categories
+                                          .map((plan) => GestureDetector(
+                                                onTap: () =>
+                                                    selectedCategory(plan.id!),
+                                                child: CategoryButton(
+                                                  categoryLabel: plan.libelle!,
+                                                  selectedCategory:
+                                                      _selectedCategory,
+                                                  index: plan.id!,
+                                                ),
+                                              ))
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                })
-              ],
-            ),
-          ],
+                                const SizedBox(height: 10),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: padding),
+                                  child: Column(
+                                    children: _homeController
+                                            .filterPlanByCategory(
+                                                _selectedCategory)
+                                            .isNotEmpty
+                                        ? _homeController
+                                            .filterPlanByCategory(
+                                                _selectedCategory)
+                                            .map(
+                                                (plan) => SmallPlan(plan: plan))
+                                            .toList()
+                                        : [
+                                            const EmptyData(
+                                                label:
+                                                    'Aucun établissement disponible')
+                                          ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                  })
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

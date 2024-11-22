@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile/constants/color.dart';
 import 'package:mobile/constants/size.dart';
 import 'package:mobile/controllers/authController.dart';
@@ -11,7 +12,7 @@ import 'package:mobile/views/widgets/Info.dart';
 import 'package:mobile/views/widgets/inputPhoneWidget.dart';
 import 'package:mobile/views/widgets/InputWidget.dart';
 import 'package:mobile/views/widgets/TextWidget.dart';
-import 'package:mobile/views/widgets/UserImage.dart';
+import 'package:mobile/views/widgets/userImage.dart';
 import 'package:mobile/views/widgets/loadingCircularProgress.dart';
 
 class ProfilScreen extends StatefulWidget {
@@ -23,10 +24,10 @@ class ProfilScreen extends StatefulWidget {
 
 class _ProfilScreenState extends State<ProfilScreen> {
   final AuthController _authController = Get.find<AuthController>();
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _lastnameController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
-  TextEditingController _adresseController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _lastnameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _adresseController = TextEditingController();
   FocusNode focusNode = FocusNode();
 
   @override
@@ -65,6 +66,81 @@ class _ProfilScreenState extends State<ProfilScreen> {
           content: 'Votre profil a été modifié avec succès !',
         );
       }
+    }
+
+    void showBottomSheetImage() {
+      showModalBottomSheet(
+          isScrollControlled: false,
+          context: context,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.2,
+          ),
+          builder: (context) => Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Container(
+                    decoration: const BoxDecoration(
+                        color: backgroundColorWhite,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            topRight: Radius.circular(25))),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 4,
+                          width: 70,
+                          color: profilBorder,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        SizedBox(
+                          height: 48,
+                          child: ButtonWidget(
+                            onPress: () => _authController.pickImage(ImageSource.camera),
+                            label: 'Prendre une photo',
+                            labelSize: textSize,
+                            iconWidget: Row(children: [
+                              SvgPicture.asset(
+                                'assets/icons/camera.svg',
+                                color: backgroundColorWhite,
+                                width: 22,
+                                height: 22,
+                              ),
+                              const SizedBox(
+                                width: 12,
+                              )
+                            ]),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        SizedBox(
+                          height: 48,
+                          child: ButtonWidget(
+                            onPress: () => _authController.pickImage(ImageSource.gallery),
+                            label: 'Choisir une image',
+                            labelSize: textSize,
+                            iconWidget: Row(children: [
+                              SvgPicture.asset(
+                                'assets/icons/capture.svg',
+                                color: backgroundColorWhite,
+                                width: 22,
+                                height: 22,
+                              ),
+                              const SizedBox(
+                                width: 12,
+                              )
+                            ]),
+                          ),
+                        ),
+                      ],
+                    )),
+              ));
     }
 
     void showBottomSheet() => showModalBottomSheet(
@@ -189,15 +265,18 @@ class _ProfilScreenState extends State<ProfilScreen> {
               child: SingleChildScrollView(
             child: Column(
               children: [
-                const Center(
+                Center(
                   child: Stack(
                     children: [
-                      UserImage(
-                        height: 120,
-                        width: 120,
-                        borderRadius: 60,
-                        borderColor: appBarBackground,
-                      ),
+                      Obx(() {
+                        return UserImage(
+                          height: 120,
+                          width: 120,
+                          borderRadius: 60,
+                          borderColor: appBarBackground,
+                          image: _authController.user.value?.image,
+                        );
+                      }),
                       Positioned(
                         bottom: 5,
                         right: 0,
@@ -205,11 +284,11 @@ class _ProfilScreenState extends State<ProfilScreen> {
                           width: 32,
                           height: 32,
                           child: IconButtonWidget(
-                            backgroundColor: Color.fromARGB(89, 224, 79, 103),
-                            icon: 'assets/icons/capture.svg',
-                            padding: 0,
-                            sizeIcon: 18,
-                          ),
+                              backgroundColor: Color.fromARGB(89, 224, 79, 103),
+                              icon: 'assets/icons/capture.svg',
+                              padding: 0,
+                              sizeIcon: 18,
+                              pressFunction: showBottomSheetImage),
                         ),
                       )
                     ],
