@@ -23,6 +23,27 @@ class PlanInfoTop extends StatelessWidget {
     }
   }
 
+  //Envoie de mail
+  Future<void> sendEmail() async {
+    final Uri url = Uri(scheme: 'mailto', path: etablissement.email);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      print('Impossible d\'ouvrir l\'application gmail');
+      sendEmailToNavigator();
+    }
+  }
+
+  Future<void> sendEmailToNavigator() async {
+    final Uri url = Uri.parse(
+        'https://mail.google.com/mail/?view=cm&fs=1&to=${etablissement.email}');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      print('Impossible d\'ouvrir Gmail dans le navigateur.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -80,13 +101,15 @@ class PlanInfoTop extends StatelessWidget {
             ),
             Row(
               children: [
-                IconButtonWidget(
-                  backgroundColor: favorisBackground,
-                  icon: 'assets/icons/envelope.svg',
-                  padding: 0,
-                  sizeIcon: 18,
-                  borderRadius: 50,
-                ),
+                if (etablissement.email != null && etablissement.email != '')
+                  IconButtonWidget(
+                    backgroundColor: favorisBackground,
+                    icon: 'assets/icons/envelope.svg',
+                    padding: 0,
+                    sizeIcon: 18,
+                    borderRadius: 50,
+                    pressFunction: () => sendEmail(),
+                  ),
                 IconButtonWidget(
                   backgroundColor: favorisBackground,
                   icon: 'assets/icons/phone.svg',

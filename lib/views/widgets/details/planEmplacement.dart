@@ -6,11 +6,22 @@ import 'package:mobile/models/etablissement.dart';
 import 'package:mobile/views/widgets/CatLoc.dart';
 import 'package:mobile/views/widgets/IconButtonWidget.dart';
 import 'package:mobile/views/widgets/TextWidget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PlanEmplacement extends StatelessWidget {
   const PlanEmplacement({super.key, required this.etablissement});
 
   final Etablissement etablissement;
+
+  //Ouverture de lien Url
+  Future<void> openUrl(String url) async {
+    final Uri urlParse = Uri.parse(url);
+    if (await canLaunchUrl(urlParse)) {
+      await launchUrl(urlParse);
+    } else {
+      print('Impossible d\'ouvrir le lien');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,28 +78,39 @@ class PlanEmplacement extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: CatLoc(
-                icon: 'assets/icons/marker.svg',
-                label: '${etablissement.ville} Abidjan',
-                maxLines: 2,
+              child: InkWell(
+                onTap: () {},
+                child: CatLoc(
+                  icon: 'assets/icons/marker.svg',
+                  label: '${etablissement.ville}',
+                  maxLines: 2,
+                ),
               ),
             ),
-            const Row(
+            Row(
               children: [
-                IconButtonWidget(
-                  backgroundColor: favorisBackground,
-                  icon: 'assets/icons/envelope.svg',
-                  padding: 0,
-                  sizeIcon: 18,
-                  borderRadius: 50,
-                ),
-                IconButtonWidget(
-                  backgroundColor: favorisBackground,
-                  icon: 'assets/icons/phone.svg',
-                  padding: 0,
-                  sizeIcon: 18,
-                  borderRadius: 50,
-                )
+                if (etablissement.facebook != null &&
+                    etablissement.facebook != '')
+                  IconButtonWidget(
+                    backgroundColor: favorisBackground,
+                    icon: 'assets/icons/facebook.svg',
+                    padding: 0,
+                    sizeIcon: 18,
+                    borderRadius: 50,
+                    pressFunction: () =>
+                        openUrl(etablissement.facebook.toString()),
+                  ),
+                if (etablissement.instagram != null &&
+                    etablissement.instagram != '')
+                  IconButtonWidget(
+                    backgroundColor: favorisBackground,
+                    icon: 'assets/icons/instagram.svg',
+                    padding: 0,
+                    sizeIcon: 18,
+                    borderRadius: 50,
+                    pressFunction: () =>
+                        openUrl(etablissement.instagram.toString()),
+                  )
               ],
             )
           ],
